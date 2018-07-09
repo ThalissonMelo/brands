@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy]
+  before_action :set_user, only: [:show, :update, :destroy, :show_follow_brands, :add_follow_brands]
 
   # GET /users
   def index
@@ -36,6 +36,47 @@ class UsersController < ApplicationController
   # DELETE /users/1
   def destroy
     @user.destroy
+  end
+
+  def add_follow_brands
+    if Brand.find_by_id(params[:brand_id])
+      if @user.user_follow_brands
+        add_follow_brand_to_array
+      else
+        @user.user_follow_brands = [params[:brand_id]]
+        save_user_follow_brands
+      end
+    else
+      error = :"This brand does not exist"
+      render json: error, status: :unprocessable_entity
+    end
+  end
+
+  def add_follow_brand_to_array
+    if @user.user_follow_brands.include?(params[:brand_id])
+      error = :"You already follow this brand"
+      render json: error, status: :unprocessable_entity
+    else
+      @user.user_follow_brands.push(params[:brand_id])
+      save_user_follow_brands
+    end
+  end
+
+  def save_user_follow_brands
+    if @user.save
+      render json: @user.user_follow_brands, status: :ok
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  def show_follow_brands
+    user_brand_response = { brands: {} }
+    if user_brand_response[:brands] = @user.user_follow_brands
+      render json: user_brand_response, status: :ok
+    else
+      render status: :unprocessable_entity
+    end
   end
 
   private
