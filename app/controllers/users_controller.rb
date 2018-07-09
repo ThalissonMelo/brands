@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy, :show_follow_brands, :add_follow_brands]
+  before_action :set_user, only: [:show, :update, :destroy,:show_follow_brands,
+                                  :add_follow_brands, :unfollow_brand]
 
   # GET /users
   def index
@@ -62,20 +63,29 @@ class UsersController < ApplicationController
     end
   end
 
-  def save_user_follow_brands
-    if @user.save
-      render json: @user.user_follow_brands, status: :ok
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
-  end
-
   def show_follow_brands
     user_brand_response = { brands: {} }
     if user_brand_response[:brands] = @user.user_follow_brands
       render json: user_brand_response, status: :ok
     else
       render status: :unprocessable_entity
+    end
+  end
+
+  def unfollow_brand
+    if @user.user_follow_brands.delete(params[:brand_id])
+      save_user_follow_brands
+    else
+      error = :"You already delete this brand"
+      render json: error, status: :unprocessable_entity
+    end
+  end
+
+  def save_user_follow_brands
+    if @user.save
+      render json: @user.user_follow_brands, status: :ok
+    else
+      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
