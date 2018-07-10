@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   resources :users
-  resources :products
-  resources :brands
+  resources :brands do
+    resources :products
+  end
 
   post "users/:id/follow", to: "users#add_follow_brands"
   get "users/:id/brands", to: "users#show_follow_brands"
