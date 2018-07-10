@@ -2,8 +2,15 @@ Rails.application.routes.draw do
   resources :users
   resources :products
   resources :brands
+
   post "users/:id/follow", to: "users#add_follow_brands"
   get "users/:id/brands", to: "users#show_follow_brands"
   delete "users/:id/follow", to: "users#unfollow_brand"
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+  post "users/:id/invite", to: "users#friendship_invitations"
+  get "users/:id/invites", to: "users#show_invite_list"
+  get "users/:id/send_invites", to: "users#show_send_invites_list"
+
+  post "users/:id/accept_friendship", to: "users#accept_friendship"
+  get "users/:id/friends", to: "users#show_user_friends"
 end
