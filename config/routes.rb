@@ -10,7 +10,6 @@ Rails.application.routes.draw do
 
   post "users/:id/invite", to: "users#friendship_invitations"
   get "users/:id/invites", to: "users#show_invite_list"
-  get "users/:id/send_invites", to: "users#show_send_invites_list"
 
   post "users/:id/accept_friendship", to: "users#accept_friendship"
   get "users/:id/friends", to: "users#show_user_friends"

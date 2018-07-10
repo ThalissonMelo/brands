@@ -3,7 +3,7 @@ class UsersController < ApplicationController
                                   :friendship_invitations, :unfollow_brand, :show_invite_list,
                                   :friendship_invitations_array, :accept_invite_array,
                                   :accept_invite_array, :accept_friendship,
-                                  :add_friendsip_on_user_that_invite, :show_user_friends, :send_invites_list]
+                                  :add_friendsip_on_user_that_invite, :show_user_friends]
 
   # GET /users
   def index
@@ -97,10 +97,12 @@ class UsersController < ApplicationController
       error = :"Invite already send"
       render json: error, status: :unprocessable_entity
     else
-      guest_user.friendship_invitations.push(@user.id)
-      guest_user.save
-      message = :"Invite has been sent"
-      render json: message, status: :ok
+      if (guest_user.id).to_i != (@user.id).to_i
+        guest_user.friendship_invitations.push(@user.id)
+        guest_user.save
+        message = :"Invite has been sent"
+        render json: message, status: :ok
+      end
     end
   end
 
@@ -124,44 +126,15 @@ class UsersController < ApplicationController
   end
 
   def add_user_on_guest_friendship_invitation_list(guest_user)
-    send_invites_list
     if guest_user.friendship_invitations
       friendship_invitations_array(guest_user)
     else
-      guest_user.friendship_invitations = [@user.id]
-      guest_user.save
-      message = :"Invite has been sent"
-      render json: message, status: :ok
-    end
-  end
-
-  def send_invites_list
-    if @user.friends_list
-      if !(@user.friends_list.include?(params[:user_id]))
-        invite_user
+      if (guest_user.id).to_i != (@user.id).to_i
+        guest_user.friendship_invitations = [@user.id]
+        guest_user.save
+        message = :"Invite has been sent"
+        render json: message, status: :ok
       end
-    else
-      invite_user
-    end
-  end
-
-  def invite_user
-    if @user.id != params[:user_id]
-      if @user.send_invites_list
-        @user.send_invites_list.push(params[:user_id])
-      else
-        @user.send_invites_list = [params[:user_id]]
-      end
-      @user.save
-    end
-  end
-
-  def show_send_invites_list
-    send_invites_list = { send_invites: {} }
-    if send_invites_list[:send_invites] = @user.send_invites_list
-      render json: send_invites_list, status: :ok
-    else
-      render status: :unprocessable_entity
     end
   end
 
